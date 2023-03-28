@@ -1,0 +1,21 @@
+resource "aws_security_group" "ELB_sg" {
+  name_prefix = "ELB-sg"
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "HTTP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_elb" "my_elb" {
+  name               = "my-elb"
+  security_groups    = [aws_security_group.ELB_sg.id]
+  subnets            = [aws_subnet.[subnet to deploy elb].id]
+  listener {
+    lb_port           = 80
+    protocol          = "HTTP"
+    instance_port     = 80
+    instance_protocol = "HTTP"
+  }
+}
