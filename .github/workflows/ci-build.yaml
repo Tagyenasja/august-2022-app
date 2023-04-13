@@ -1,0 +1,37 @@
+name: build
+on:
+  push:
+    branches:
+    - master
+    - main
+    paths:
+    - app/**
+  pull_request:
+    branches:
+    - master
+    - main
+    paths:
+    - app/**
+
+env:
+  image: august-2022-app
+  username: bmukum
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build the docker images
+      run: |
+        docker build -t ${{ env.username }}/${{ env.image }}:v$GITHUB_RUN_NUMBER ./app
+      
+    - name: Login to dockerhub
+      run: docker login -u ${{ env.username }} -p ${{ secrets.DOCKERHUB_PW }}
+      
+    - name: Push docker image to dockerhub
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker push ${{ env.username }}/${{ env.image }}:v$GITHUB_RUN_NUMBER
